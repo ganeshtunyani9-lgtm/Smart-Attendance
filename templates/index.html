@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System | College Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Color Variables */
+        :root {
+            --cool-gray: #9CA3AF;
+            --mint-green: #A7F3D0;
+            --soft-blue: #60A5FA;
+            --off-white: #F9FAFB;
+            --charcoal: #1F2937;
+            --charcoal-light: #374151;
+            --charcoal-lighter: #4B5563;
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 80px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--off-white);
+            color: var(--charcoal);
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--cool-gray);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--soft-blue);
+            border-radius: 10px;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--charcoal) 0%, var(--charcoal-light) 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .sidebar-header h3 i {
+            color: var(--mint-green);
+            margin-right: 10px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 1.5rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-link-custom:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: var(--mint-green);
+        }
+
+        .nav-link-custom.active {
+            background: rgba(167, 243, 208, 0.15);
+            color: var(--mint-green);
+            border-left-color: var(--mint-green);
+        }
+
+        .nav-link-custom i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .nav-link-custom span {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Stats Cards in Sidebar */
+        .sidebar-stats {
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-mini {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .stat-mini-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--mint-green);
+        }
+
+        .stat-mini-label {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--cool-gray);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+        }
+
+        .date-time {
+            display: flex;
+            gap: 1rem;
+            color: var(--charcoal-lighter);
+            font-size: 0.9rem;
+        }
+
+        /* Cards */
+        .card-modern {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid var(--cool-gray);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card-modern:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--mint-green);
+        }
+
+        .card-title i {
+            color: var(--soft-blue);
+            margin-right: 10px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .form-control-modern {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--cool-gray);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-control-modern:focus {
+            outline: none;
+            border-color: var(--soft-blue);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        /* Buttons */
+        .btn-primary-modern {
+            background: var(--mint-green);
+            color: var(--charcoal);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+        }
+
+        .btn-primary-modern:hover {
+            background: #8BE5C0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(167, 243, 208, 0.4);
+        }
+
+        .btn-secondary-modern {
+            background: white;
+            color: var(--charcoal);
+            border: 1px solid var(--cool-gray);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary-modern:hover {
+            background: var(--off-white);
+            border-color: var(--soft-blue);
+        }
+
+        /* Photo Preview Grid */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .photo-card {
+            background: var(--off-white);
+            border-radius: 12px;
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--cool-gray);
+            transition: all 0.3s ease;
+        }
+
+        .photo-card:hover {
+            transform: scale(1.05);
+            border-color: var(--mint-green);
+        }
+
+        .photo-preview {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table-modern {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-modern thead th {
+            background: var(--off-white);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--charcoal);
+            border-bottom: 2px solid var(--cool-gray);
+        }
+
+        .table-modern tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--cool-gray);
+            color: var(--charcoal-light);
+        }
+
+        .table-modern tbody tr:hover {
+            background: var(--off-white);
+        }
+
+        /* Badges */
+        .badge-success {
+            background: var(--mint-green);
+            color: var(--charcoal);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-info {
+            background: var(--soft-blue);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-warning {
+            background: #FEF3C7;
+            color: #D97706;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Recognition Results */
+        .result-card {
+            background: var(--off-white);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--mint-green);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--cool-gray);
+            border-top: 3px solid var(--mint-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>
+                    <i class="fas fa-camera-retro"></i> SmartAttendance
+                </h3>
+                <p>AI-Powered Face Recognition</p>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <div class="nav-link-custom active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div class="nav-link-custom" data-page="mark-attendance">
+                        <i class="fas fa-camera"></i>
+                        <span>Mark Attendance</span>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div class="nav-link-custom" data-page="register">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Register Student</span>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div class="nav-link-custom" data-page="reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Attendance Reports</span>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div class="nav-link-custom" data-page="students">
+                        <i class="fas fa-users"></i>
+                        <span>Students List</span>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="sidebar-stats">
+                <div class="stat-mini">
+                    <div class="stat-mini-number" id="sidebarTotalStudents">0</div>
+                    <div class="stat-mini-label">Total Students</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-number" id="sidebarTodayAttendance">0</div>
+                    <div class="stat-mini-label">Present Today</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="page-title" id="pageTitle">Dashboard</div>
+                <div class="date-time">
+                    <span><i class="fas fa-calendar"></i> <span id="currentDate"></span></span>
+                    <span><i class="fas fa-clock"></i> <span id="currentTime"></span></span>
+                </div>
+            </div>
+
+            <div id="pageContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Current date and time
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('currentDate').innerHTML = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('currentTime').innerHTML = now.toLocaleTimeString();
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        // Page navigation
+        document.querySelectorAll('.nav-link-custom').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-link-custom').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                const page = this.getAttribute('data-page');
+                document.getElementById('pageTitle').innerHTML = this.querySelector('span').innerHTML;
+                loadPage(page);
+            });
+        });
+
+        // Load page content
+        async function loadPage(page) {
+            const contentDiv = document.getElementById('pageContent');
+            contentDiv.innerHTML = '<div style="text-align: center; padding: 50px;"><div class="spinner"></div></div>';
+            
+            switch(page) {
+                case 'dashboard':
+                    await loadDashboard();
+                    break;
+                case 'mark-attendance':
+                    await loadMarkAttendance();
+                    break;
+                case 'register':
+                    await loadRegisterStudent();
+                    break;
+                case 'reports':
+                    await loadReports();
+                    break;
+                case 'students':
+                    await loadStudentsList();
+                    break;
+                default:
+                    await loadDashboard();
+            }
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/dashboard_stats');
+                const data = await response.json();
+                
+                const html = `
+                    <div class="fade-in">
+                        <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="card-modern">
+                                <div style="text-align: center;">
+                                    <i class="fas fa-users" style="font-size: 3rem; color: var(--soft-blue);"></i>
+                                    <div style="font-size: 2.5rem; font-weight: 800; margin: 0.5rem 0;">${data.total_students}</div>
+                                    <div style="color: var(--charcoal-lighter);">Total Students Registered</div>
+                                    <div style="margin-top: 0.5rem;">
+                                        <span class="badge-success">5 photos each</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-modern">
+                                <div style="text-align: center;">
+                                    <i class="fas fa-user-check" style="font-size: 3rem; color: var(--mint-green);"></i>
+                                    <div style="font-size: 2.5rem; font-weight: 800; margin: 0.5rem 0;">${data.today_attendance}</div>
+                                    <div style="color: var(--charcoal-lighter);">Present Today</div>
+                                    <div style="margin-top: 0.5rem;">
+                                        <span class="badge-info">Attendance Rate: ${data.total_students > 0 ? ((data.today_attendance / data.total_students) * 100).toFixed(1) : 0}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-modern">
+                                <div style="text-align: center;">
+                                    <i class="fas fa-brain" style="font-size: 3rem; color: var(--soft-blue);"></i>
+                                    <div style="font-size: 2.5rem; font-weight: 800; margin: 0.5rem 0;">${data.total_encodings}</div>
+                                    <div style="color: var(--charcoal-lighter);">Face Models Trained</div>
+                                    <div style="margin-top: 0.5rem;">
+                                        <span class="badge-success">AI Ready</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-modern">
+                            <div class="card-title">
+                                <i class="fas fa-chart-line"></i> Quick Actions
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <button class="btn-primary-modern" onclick="document.querySelector('[data-page=mark-attendance]').click()">
+                                    <i class="fas fa-camera"></i> Mark Attendance
+                                </button>
+                                <button class="btn-primary-modern" onclick="document.querySelector('[data-page=register]').click()">
+                                    <i class="fas fa-user-plus"></i> Register Student
+                                </button>
+                                <button class="btn-primary-modern" onclick="document.querySelector('[data-page=reports]').click()">
+                                    <i class="fas fa-chart-bar"></i> View Reports
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card-modern">
+                            <div class="card-title">
+                                <i class="fas fa-clock"></i> Recent Activity
+                            </div>
+                            <div id="recentActivity">
+                                <div style="text-align: center; padding: 2rem; color: var(--charcoal-lighter);">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('pageContent').innerHTML = html;
+                await loadRecentActivity();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        async function loadRecentActivity() {
+            try {
+                const response = await fetch('/api/today_attendance');
+                const data = await response.json();
+                const activityDiv = document.getElementById('recentActivity');
+                
+                if (data.length === 0) {
+                    activityDiv.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--charcoal-lighter);"><i class="fas fa-inbox"></i> No attendance records today</div>';
+                } else {
+                    let html = '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
+                    data.slice(0, 5).forEach(record => {
+                        html += `
+                            <div class="result-card">
+                                <i class="fas fa-user-check" style="color: var(--mint-green);"></i>
+                                <strong>${record.student_name}</strong> (${record.student_id})
+                                <span style="float: right; font-size: 0.8rem; color: var(--charcoal-lighter);">
+                                    ${new Date(record.timestamp).toLocaleTimeString()}
+                                </span>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    activityDiv.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading activity:', error);
+            }
+        }
+
+        // Mark Attendance Page
+        async function loadMarkAttendance() {
+            const html = `
+                <div class="fade-in">
+                    <div class="row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="card-modern">
+                            <div class="card-title">
+                                <i class="fas fa-cloud-upload-alt"></i> Upload Class Photo
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Select Group Photo</label>
+                                <input type="file" class="form-control-modern" id="attendancePhoto" accept="image/*">
+                            </div>
+                            <div style="text-align: center; margin-top: 1rem;">
+                                <img id="attendancePreview" style="max-width: 100%; border-radius: 12px; display: none;">
+                                <div id="uploadPlaceholder" style="padding: 2rem; background: var(--off-white); border-radius: 12px;">
+                                    <i class="fas fa-camera-retro" style="font-size: 3rem; color: var(--cool-gray);"></i>
+                                    <p style="margin-top: 0.5rem; color: var(--charcoal-lighter);">No image selected</p>
+                                </div>
+                            </div>
+                            <button class="btn-primary-modern" style="margin-top: 1rem;" onclick="markAttendance()">
+                                <i class="fas fa-fingerprint"></i> Recognize & Mark Attendance
+                            </button>
+                        </div>
+                        <div class="card-modern">
+                            <div class="card-title">
+                                <i class="fas fa-list-check"></i> Recognition Results
+                            </div>
+                            <div id="recognitionResults" style="max-height: 500px; overflow-y: auto;">
+                                <div style="text-align: center; padding: 2rem; color: var(--charcoal-lighter);">
+                                    <i class="fas fa-info-circle"></i>
+                                    <p>Upload a photo to see results</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('pageContent').innerHTML = html;
+            
+            // Add event listener for photo preview
+            document.getElementById('attendancePhoto').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('attendancePreview');
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        document.getElementById('uploadPlaceholder').style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Register Student Page
+        async function loadRegisterStudent() {
+            const html = `
+                <div class="fade-in">
+                    <div class="card-modern">
+                        <div class="card-title">
+                            <i class="fas fa-user-graduate"></i> New Student Registration (5 Photos Required)
+                        </div>
+                        <form id="registrationForm">
+                            <div class="row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Student ID</label>
+                                    <input type="text" class="form-control-modern" id="studentId" placeholder="e.g., 2024CS001" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Student Name</label>
+                                    <input type="text" class="form-control-modern" id="studentName" placeholder="Full Name" required>
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="form-label">Class / Section</label>
+                                    <input type="text" class="form-control-modern" id="classSection" placeholder="e.g., CSE-A, 3rd Year">
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="form-label">Upload 5 Photos (Different Angles)</label>
+                                    <input type="file" class="form-control-modern" id="studentPhotos" accept="image/*" multiple>
+                                    <small style="color: var(--charcoal-lighter); display: block; margin-top: 0.5rem;">
+                                        <i class="fas fa-info-circle"></i> Select exactly 5 clear photos from different angles
+                                    </small>
+                                </div>
+                            </div>
+                            <div id="photoPreview" class="photo-grid"></div>
+                            <button type="submit" class="btn-primary-modern" style="margin-top: 1rem;">
+                                <i class="fas fa-save"></i> Register Student
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.getElementById('pageContent').innerHTML = html;
+            
+            // Photo preview
+            document.getElementById('studentPhotos').addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                const preview = document.getElementById('photoPreview');
+                preview.innerHTML = '';
+                
+                if (files.length !== 5) {
+                    alert('⚠️ Please select exactly 5 photos!');
+                    this.value = '';
+                    return;
+                }
+                
+                files.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'photo-card';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="photo-preview">
+                            <small>Photo ${index + 1}</small>
+                        `;
+                        preview.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+            
+            // Form submit
+            document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await submitRegistration();
+            });
+        }
+
+        // Reports Page
+        async function loadReports() {
+            const html = `
+                <div class="fade-in">
+                    <div class="card-modern">
+                        <div class="card-title">
+                            <i class="fas fa-chart-line"></i> Today's Attendance Report
+                        </div>
+                        <div class="table-container">
+                            <table class="table-modern">
+                                <thead>
+                                    <tr>
+                                        <th>Student ID</th>
+                                        <th>Student Name</th>
+                                        <th>Time</th>
+                                        <th>Confidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendanceTableBody">
+                                    <tr><td colspan="4" style="text-align: center;">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button class="btn-primary-modern" onclick="exportCSV()">
+                                <i class="fas fa-download"></i> Export to CSV
+                            </button>
+                            <button class="btn-secondary-modern" onclick="resetSession()">
+                                <i class="fas fa-sync-alt"></i> Reset Session
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('pageContent').innerHTML = html;
+            await loadAttendanceTable();
+        }
+
+        // Students List Page
+        async function loadStudentsList() {
+            const html = `
+                <div class="fade-in">
+                    <div class="card-modern">
+                        <div class="card-title">
+                            <i class="fas fa-address-book"></i> Registered Students Directory
+                        </div>
+                        <div class="form-group">
+                            <div style="position: relative;">
+                                <i class="fas fa-search" style="position: absolute; left: 15px; top: 12px; color: var(--cool-gray);"></i>
+                                <input type="text" class="form-control-modern" id="searchStudent" placeholder="Search by name or ID..." style="padding-left: 40px;">
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="table-modern">
+                                <thead>
+                                    <tr>
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>Class/Section</th>
+                                        <th>Photos</th>
+                                        <th>Registration Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentsTableBody">
+                                    <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('pageContent').innerHTML = html;
+            await loadStudentsTable();
+            
+            document.getElementById('searchStudent').addEventListener('keyup', function() {
+                const searchValue = this.value.toLowerCase();
+                const rows = document.getElementById('studentsTableBody').getElementsByTagName('tr');
+                for (let row of rows) {
+                    const text = row.innerText.toLowerCase();
+                    row.style.display = text.includes(searchValue) ? '' : 'none';
+                }
+            });
+        }
+
+        // Helper Functions
+        async function loadAttendanceTable() {
+            try {
+                const response = await fetch('/api/today_attendance');
+                const data = await response.json();
+                const tbody = document.getElementById('attendanceTableBody');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;"><i class="fas fa-inbox"></i> No attendance records today</td></tr>';
+                } else {
+                    data.forEach(record => {
+                        const confidenceClass = record.confidence >= 70 ? 'badge-success' : (record.confidence >= 50 ? 'badge-warning' : 'badge-info');
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${record.student_id}</td>
+                                <td>${record.student_name}</td>
+                                <td>${new Date(record.timestamp).toLocaleTimeString()}</td>
+                                <td><span class="${confidenceClass}">${record.confidence}%</span></td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading attendance:', error);
+            }
+        }
+
+        async function loadStudentsTable() {
+            try {
+                const response = await fetch('/api/students');
+                const students = await response.json();
+                const tbody = document.getElementById('studentsTableBody');
+                tbody.innerHTML = '';
+                
+                if (students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;"><i class="fas fa-user-graduate"></i> No students registered</td></tr>';
+                } else {
+                    students.forEach(student => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><code>${student.id}</code></td>
+                                <td><strong>${student.name}</strong></td>
+                                <td>${student.class_section}</td>
+                                <td><span class="badge-success">${student.photos_count}/5 photos</span></td>
+                                <td>${new Date(student.registration_date).toLocaleDateString()}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+
+        async function submitRegistration() {
+            const studentId = document.getElementById('studentId').value;
+            const studentName = document.getElementById('studentName').value;
+            const classSection = document.getElementById('classSection').value;
+            const photos = document.getElementById('studentPhotos').files;
+            
+            if (!studentId || !studentName) {
+                alert('Please fill all required fields!');
+                return;
+            }
+            
+            if (photos.length !== 5) {
+                alert('Please select exactly 5 photos!');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const photoBase64 = [];
+                for (let photo of photos) {
+                    const base64 = await toBase64(photo);
+                    photoBase64.push(base64);
+                }
+                
+                const response = await fetch('/api/register_student', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        student_name: studentName,
+                        class_section: classSection,
+                        photos: photoBase64
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('❌ ' + data.error);
+                } else {
+                    alert('✅ ' + data.message);
+                    document.getElementById('registrationForm').reset();
+                    document.getElementById('photoPreview').innerHTML = '';
+                    updateSidebarStats();
+                    loadStudentsTable();
+                }
+            } catch (error) {
+                alert('❌ Registration failed: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function markAttendance() {
+            const photoFile = document.getElementById('attendancePhoto').files[0];
+            if (!photoFile) {
+                alert('Please select a photo first!');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const base64 = await toBase64(photoFile);
+                const response = await fetch('/api/mark_attendance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ photo: base64 })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('❌ ' + data.error);
+                } else {
+                    displayResults(data);
+                    updateSidebarStats();
+                    loadAttendanceTable();
+                }
+            } catch (error) {
+                alert('❌ Attendance marking failed: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('recognitionResults');
+            resultsDiv.innerHTML = '';
+            
+            if (data.recognized && data.recognized.length > 0) {
+                resultsDiv.innerHTML += `
+                    <div style="background: var(--mint-green); padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>✅ ${data.recognized.length} out of ${data.total_faces} faces recognized</strong>
+                        ${data.unknown > 0 ? `<br><i class="fas fa-exclamation-triangle"></i> ${data.unknown} unknown person(s) detected` : ''}
+                    </div>
+                `;
+                
+                data.recognized.forEach(student => {
+                    const confidenceClass = student.confidence >= 70 ? 'badge-success' : (student.confidence >= 50 ? 'badge-warning' : 'badge-info');
+                    resultsDiv.innerHTML += `
+                        <div class="result-card">
+                            <i class="fas fa-user-check" style="color: var(--mint-green);"></i>
+                            <strong>${student.name}</strong> (${student.id})
+                            <span class="${confidenceClass}" style="float: right;">${student.confidence}%</span>
+                        </div>
+                    `;
+                });
+            } else {
+                resultsDiv.innerHTML = `
+                    <div style="background: #FEF3C7; padding: 1rem; border-radius: 12px; color: #D97706;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        No recognized students found in the photo!
+                    </div>
+                `;
+            }
+        }
+
+        async function exportCSV() {
+            window.location.href = '/api/export_csv';
+        }
+
+        async function resetSession() {
+            if (confirm('Reset today\'s session?')) {
+                showLoading();
+                try {
+                    const response = await fetch('/api/reset_session', { method: 'POST' });
+                    const data = await response.json();
+                    alert('✅ ' + data.message);
+                    loadAttendanceTable();
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                } finally {
+                    hideLoading();
+                }
+            }
+        }
+
+        async function updateSidebarStats() {
+            try {
+                const response = await fetch('/api/dashboard_stats');
+                const data = await response.json();
+                document.getElementById('sidebarTotalStudents').innerHTML = data.total_students;
+                document.getElementById('sidebarTodayAttendance').innerHTML = data.today_attendance;
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // Load initial page
+        loadPage('dashboard');
+        updateSidebarStats();
+        setInterval(updateSidebarStats, 30000);
+    </script>
+</body>
+</html>
